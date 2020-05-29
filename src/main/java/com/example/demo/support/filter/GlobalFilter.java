@@ -18,7 +18,6 @@ import java.io.IOException;
  * @since 2020/5/28 13:47
  */
 @Log4j2
-@WebFilter(filterName = "GlobalFilter", urlPatterns = "/api")
 public class GlobalFilter implements Filter {
 	
 	@Override

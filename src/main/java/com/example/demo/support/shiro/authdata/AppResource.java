@@ -2,7 +2,7 @@
  * Author github: https://github.com/zs-neo
  * Author Email: 2931622851@qq.com
  */
-package com.example.demo.support.shiro;
+package com.example.demo.support.shiro.authdata;
 
 import lombok.Data;
 

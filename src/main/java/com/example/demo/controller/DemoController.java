@@ -4,24 +4,18 @@
  */
 package com.example.demo.controller;
 
-import com.example.demo.bean.User;
 import com.example.demo.service.UserService;
 import com.example.demo.support.annocation.PermissionCheck;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.example.demo.support.beans.CodeMsg;
+import com.example.demo.support.exception.GlobalException;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.session.Session;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpSession;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -31,15 +25,21 @@ public class DemoController {
 	private UserService userService;
 	
 	@GetMapping("/hello")
-	@PermissionCheck("hello:view")
+	@PermissionCheck("user:hello")
 	public String hello() {
 		return "hello";
 	}
 	
 	@GetMapping("/hi")
-	@PermissionCheck("hi:view")
+	@PermissionCheck("user:hi,demo:good,demo:test")
 	public String hi() {
 		return "hi";
+	}
+	
+	@GetMapping("/ok")
+	@PermissionCheck("user:ok")
+	public String ok() {
+		return "ok";
 	}
 	
 	@GetMapping("/exclude")
@@ -49,10 +49,31 @@ public class DemoController {
 	
 	@GetMapping("/login")
 	public String login(@RequestParam String username, @RequestParam String password) {
-		Subject subject = SecurityUtils.getSubject();
-		UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username, password);
-		subject.login(usernamePasswordToken);
-		return "suc";
+		try {
+			UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+			Subject currentUser = SecurityUtils.getSubject();
+			if (!currentUser.isAuthenticated()) {
+				token.setRememberMe(true);
+				currentUser.login(token);
+			}
+			return "suc";
+		} catch (UnknownAccountException uae) {
+			throw new GlobalException(CodeMsg.UNKONWN_ACCOUNT_ERROR);
+		} catch (LockedAccountException lae) {
+			throw new GlobalException(CodeMsg.LOCKED_ACCOUNT_ERROR);
+		} catch (ExcessiveAttemptsException eae) {
+			throw new GlobalException(CodeMsg.ATTEMPT_ACCOUNT_ERROR);
+		} catch (AuthenticationException ae) {
+			throw new GlobalException(CodeMsg.ACCOUNT_ERROR);
+		} catch (Exception e) {
+			throw new GlobalException(CodeMsg.ACCOUNT_ERROR);
+		}
+	}
+	
+	@RequestMapping(value = "/logout")
+	public String logout() {
+		SecurityUtils.getSubject().logout();
+		return "login";
 	}
 	
 	@GetMapping("/user")

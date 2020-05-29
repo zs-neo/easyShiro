@@ -2,7 +2,7 @@
  * Author github: https://github.com/zs-neo
  * Author Email: 2931622851@qq.com
  */
-package com.example.demo.support.shiro;
+package com.example.demo.support.shiro.authdata;
 
 import lombok.Data;
 
@@ -12,8 +12,8 @@ import lombok.Data;
  * @since 2020/5/28 16:18
  */
 @Data
-public class AppOperation {
+public class AppRole {
 	
-	private String operationName;
+	private String appRoleName;
 	
 }

@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * 1.GlobalFilter->preHandle->postHandle->afterCompletion
  * 2.其中注册的exclude路径，如果匹配到是不走这个过滤器的
- * 3.可以在这里写权限判断的逻辑
+ * 3.也可以在这里写权限判断的逻辑，但是现在暂时保留
  *
  * @author zhousheng
  * @version 1.0
@@ -33,9 +33,10 @@ public class AppMvcInterceptorConfiguration extends HandlerInterceptorAdapter im
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+		log.info("添加过滤路径和非过滤路径");
 		registry.addInterceptor(this)
-				.addPathPatterns(appProperties.getSecurity().getIncludePathPatterns())
-				.excludePathPatterns(appProperties.getSecurity().getExcludePathPatterns());
+				.addPathPatterns(appProperties.getSecurity().getIncludePathPatterns());
+//				.excludePathPatterns(appProperties.getSecurity().getExcludePathPatterns());
 	}
 	
 	@Override

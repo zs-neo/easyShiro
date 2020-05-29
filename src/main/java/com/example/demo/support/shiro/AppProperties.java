@@ -5,24 +5,25 @@
 package com.example.demo.support.shiro;
 
 import lombok.Data;
-import org.springframework.context.annotation.Configuration;
-import sun.nio.ch.ThreadPool;
+import org.springframework.stereotype.Component;
 
 /**
+ * support包的全局应用参数配置
+ *
  * @author zhousheng
  * @version 1.0
  * @since 2020/5/28 15:25
  */
 @Data
-@Configuration
+@Component
 public class AppProperties {
 	
 	private SecurityProperties security = new SecurityProperties();
 	
 	@Data
-	public static class  SecurityProperties{
-		private String[] includePathPatterns ={ "/**"};
-		private String[] excludePathPatterns = {"/api/exclude/**"};
+	public static class SecurityProperties {
+		private String[] includePathPatterns = {"/**"};
+		private String[] excludePathPatterns = {"/api/login*"};
 	}
 	
 }

@@ -4,20 +4,19 @@
  */
 package com.example.demo.support.shiro;
 
+import com.example.demo.bean.Auth;
 import com.example.demo.bean.User;
-import com.example.demo.service.UserService;
+import com.example.demo.mapper.AuthMapper;
+import com.example.demo.mapper.UserMapper;
+import com.example.demo.support.beans.CodeMsg;
+import com.example.demo.support.exception.GlobalException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -27,79 +26,75 @@ import java.util.*;
  * @since 2020/5/28 16:47
  */
 @Log4j2
-@Component
 public class AppRealm extends AuthorizingRealm {
 	
-	Map<String,String> userMap = new HashMap<>(16);
-	
-	{
-		userMap.put("Mark","283538989cef48f3d7d8a1c1bdf2008f");
-		super.setName("customRealm");
-	}
+	@Autowired
+	private AuthMapper authMapper;
 	
 	@Autowired
-	private UserService userService;
+	private UserMapper userMapper;
 	
 	@Override
 	public boolean isPermitted(PrincipalCollection principals, String permission) {
-		return true;
+		List<String> users = principals.asList();
+		if (users == null) {
+			throw new GlobalException(CodeMsg.NO_PERMISSIONS);
+		}
+		String username = users.get(0);
+		List<Auth> auths = authMapper.getUserAuth(username);
+		String[] permissions = permission.split(",");
+		String line = "";
+		for (Auth auth : auths) {
+			line += auth.getPermission();
+			for (String permissionStr : permissions) {
+				if (auth.getPermission().equals(permissionStr)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	/**
 	 * 该方法主要是用于当前登录用户授权
 	 *
-	 * @param token
+	 * @param authcToken
 	 * @return
 	 * @throws AuthenticationException
 	 */
 	@Override
-	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-		// 1.从主体传过来的认证信息中，获得用户名
-		String userName = (String) token.getPrincipal();
-		// 2.通过用户名到数据库中获得凭证
-		String password = getPasswordByUserName(userName);
-		if (password == null) {
-			return null;
+	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken) throws AuthenticationException {
+		log.info("doGetAuthorizationInfo do user authorize");
+		UsernamePasswordToken token = (UsernamePasswordToken) authcToken;
+		String username = token.getUsername();
+		String password = String.valueOf(token.getPassword());
+//		if (userMapper == null) {
+//			userMapper = (UserMapper) SpringContextUtils.getContext().getBean("userMapper");
+//		}
+		log.info("当前登录的用户名 = {} 密码 = {} ", username, password);
+		User user = userMapper.getUsersByName(username);
+		log.info("DB对应的用户名 = {} 密码 = {} ", user.getUsername(), user.getPassword());
+		if (password.equals(user.getPassword())) {
+			SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(username, password, getName());
+			return info;
+		} else {
+			throw new GlobalException(CodeMsg.PASSWORD_ERROR);
 		}
-		SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo("Mark", password, "customRealm");
-		// 这个是直接加盐在原来加密的基础上
-		authenticationInfo.setCredentialsSalt(ByteSource.Util.bytes("Mark"));
-		return authenticationInfo;
 	}
 	
 	/**
-	 * 该方法主要是进行用户验证的
+	 * 该方法主要是进行用户验证的,没找出问题来,调用不了
 	 *
 	 * @param principals
 	 * @return
 	 */
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-		String userName = (String) principals.getPrimaryPrincipal();
-		Set<String> roles = getRoleByUserName(userName);
-		Set<String> permissions = getPermissionByUserName(userName);
+		log.info("doGetAuthorizationInfo do user check");
 		SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-		simpleAuthorizationInfo.setRoles(roles);
-		simpleAuthorizationInfo.setStringPermissions(permissions);
+		simpleAuthorizationInfo.setRoles(null);
+		simpleAuthorizationInfo.setStringPermissions(null);
 		return simpleAuthorizationInfo;
-	}
-	
-	private String getPasswordByUserName(String userName) {
-		return userMap.get(userName);
-	}
-	
-	private Set<String> getPermissionByUserName(String userName) {
-		Set<String> sets = new HashSet<>(16);
-		sets.add("user:delete");
-		sets.add("user:add");
-		return sets;
-	}
-	
-	private Set<String> getRoleByUserName(String userName) {
-		Set<String> sets = new HashSet<>(10);
-		sets.add("admin");
-		sets.add("user");
-		return sets;
 	}
 	
 }
