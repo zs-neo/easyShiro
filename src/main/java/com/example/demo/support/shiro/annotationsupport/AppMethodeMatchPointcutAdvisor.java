@@ -39,26 +39,6 @@ public class AppMethodeMatchPointcutAdvisor extends StaticMethodMatcherPointcutA
 		setAdvice(new AppPermissionAopAllianceAnnotationsAuthorizingMethodInterceptor());
 		log.info("set advisor AppPermissionAopAllianceAnnotationsAuthorizingMethodInterceptor");
 	}
-
-
-//	@Override
-//	public boolean matches(Method method, Class targetClass) {
-//		log.info("check if method match");
-//		Method m = method;
-//		if (targetClass != null) {
-//			try {
-//				m = targetClass.getMethod(m.getName(), m.getParameterTypes());
-//				return this.isFrameAnnotation(m);
-//			} catch (NoSuchMethodException ignored) {
-//
-//			}
-//		}
-//		return super.matches(method, targetClass);
-//	}
-//
-//	private boolean isFrameAnnotation(Method method) {
-//		return null != AnnotationUtils.findAnnotation(method, PermissionCheck.class);
-//	}
 	
 	
 	public void setSecurityManager(SecurityManager securityManager) {
@@ -94,7 +74,6 @@ public class AppMethodeMatchPointcutAdvisor extends StaticMethodMatcherPointcutA
 		}
 		return false;
 	}
-	
 	
 	
 }

@@ -43,10 +43,9 @@ public class AppRealm extends AuthorizingRealm {
 		String username = users.get(0);
 		List<Auth> auths = authMapper.getUserAuth(username);
 		String[] permissions = permission.split(",");
-		String line = "";
 		for (Auth auth : auths) {
-			line += auth.getPermission();
 			for (String permissionStr : permissions) {
+				//任何一个匹配到
 				if (auth.getPermission().equals(permissionStr)) {
 					return true;
 				}
@@ -68,12 +67,10 @@ public class AppRealm extends AuthorizingRealm {
 		UsernamePasswordToken token = (UsernamePasswordToken) authcToken;
 		String username = token.getUsername();
 		String password = String.valueOf(token.getPassword());
-//		if (userMapper == null) {
-//			userMapper = (UserMapper) SpringContextUtils.getContext().getBean("userMapper");
-//		}
-		log.info("当前登录的用户名 = {} 密码 = {} ", username, password);
 		User user = userMapper.getUsersByName(username);
-		log.info("DB对应的用户名 = {} 密码 = {} ", user.getUsername(), user.getPassword());
+		if (user == null) {
+			throw new GlobalException(CodeMsg.NO_PERMISSIONS);
+		}
 		if (password.equals(user.getPassword())) {
 			SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(username, password, getName());
 			return info;

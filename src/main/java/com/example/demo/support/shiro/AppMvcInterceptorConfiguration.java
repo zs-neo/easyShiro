@@ -35,8 +35,8 @@ public class AppMvcInterceptorConfiguration extends HandlerInterceptorAdapter im
 	public void addInterceptors(InterceptorRegistry registry) {
 		log.info("添加过滤路径和非过滤路径");
 		registry.addInterceptor(this)
-				.addPathPatterns(appProperties.getSecurity().getIncludePathPatterns());
-//				.excludePathPatterns(appProperties.getSecurity().getExcludePathPatterns());
+				.addPathPatterns(appProperties.getSecurity().getIncludePathPatterns())
+				.excludePathPatterns(appProperties.getSecurity().getExcludePathPatterns());
 	}
 	
 	@Override

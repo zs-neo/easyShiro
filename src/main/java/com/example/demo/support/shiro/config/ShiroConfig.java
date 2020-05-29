@@ -99,10 +99,8 @@ public class ShiroConfig {
 		log.info("shiro filter init chain");
 		// shiro过滤器工厂类
 		ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
-		// 设置 SecurityManager
 		shiroFilterFactoryBean.setSecurityManager(securityManager);
 		Map<String, Filter> filterMap = new HashMap<>();
-//		filterMap.put("shiroFilter", new ShiroFilter());
 		shiroFilterFactoryBean.setFilters(filterMap);
 		/*
 		 *   Shiro内置过滤器，可以实现权限相关的拦截器，常用的有：
@@ -113,6 +111,7 @@ public class ShiroConfig {
 		 *   role：该资源必须得到角色资源才能访问
 		 */
 		Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
+		//不过滤login的请求
 		filterChainDefinitionMap.put("/api/login", "anon");
 		filterChainDefinitionMap.put("/**", "authc");
 		// 如果不设置默认会自动寻找Web工程根目录下的"/login"页面

@@ -39,7 +39,6 @@ public class AppPermissionAnnotationHandler extends AuthorizingAnnotationHandler
 			boolean hasAtLeastOnePermission = false;
 			try {
 				for (String str : values) {
-					log.info("check permission {} result {}",str,subject.isPermitted(str));
 					if (subject.isPermitted(str)) {
 						hasAtLeastOnePermission = true;
 						break;

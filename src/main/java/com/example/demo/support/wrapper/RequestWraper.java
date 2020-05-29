@@ -61,6 +61,7 @@ public class RequestWraper extends HttpServletRequestWrapper {
 		};
 	}
 	
+	@Override
 	public String[] getParameterValues(String parameter) {
 		String[] values = super.getParameterValues(parameter);
 		if (values == null) {
@@ -74,6 +75,7 @@ public class RequestWraper extends HttpServletRequestWrapper {
 		return encodedValues;
 	}
 	
+	@Override
 	public String getParameter(String parameter) {
 		String value = super.getParameter(parameter);
 		if (value == null) {
@@ -82,6 +84,7 @@ public class RequestWraper extends HttpServletRequestWrapper {
 		return xssExcape(value);
 	}
 	
+	@Override
 	public String getHeader(String name) {
 		String value = super.getHeader(name);
 		if (value == null) {
