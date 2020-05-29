@@ -1,0 +1,13 @@
+###
+GET localhost:8080/api/hello
+
+###
+GET localhost:8080/api/hi
+
+###
+GET localhost:8080/api/exclude
+
+###
+GET localhost:8080/api/login?username=123&password=123
+
+###
